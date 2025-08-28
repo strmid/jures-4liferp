@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treinamento de Jurisprudência</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+
+        .container-principal {
+            background: #fff;
+            padding: 2.5em;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 0.5em;
+        }
+
+        .caixa-exercicio {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.6em;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 2em 0;
+        }
+
+        .input-resposta {
+            width: 150px;
+            padding: 8px;
+            font-size: 0.9em;
+            text-align: center;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin: 0 5px;
+            display: none;
+        }
+
+        .caixa-descricao {
+            margin-top: 1.5em;
+            padding: 1.5em;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            text-align: left;
+            line-height: 1.6;
+            color: #555;
+            min-height: 80px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 1.5em;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .feedback-box {
+            margin-top: 1em;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .feedback-correto {
+            color: green;
+        }
+
+        .feedback-errado {
+            color: red;
+        }
+
+        .container-principal {
+            background: #fff;
+            padding: 2.5em;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .creditos {
+            position: absolute;
+            bottom: 15px; 
+            left: 15px;
+            text-align: left;
+            color: #555;
+            font-size: 0.8em;
+            line-height: 1.2;
+        }
+
+        .creditos p {
+            margin: 0;
+        }
+
+        .creditos a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-principal">
+        <h1>Treinamento de Jurisprudência</h1>
+        
+        <div class="caixa-exercicio">
+            <span id="antesV">
+                <span class="texto-parte"></span>
+                <input type="text" class="input-resposta" id="input-parte-1" placeholder="Resposta">
+            </span>
+            <span id="separador">v.</span>
+            <span id="depoisV">
+                <span class="texto-parte"></span>
+                <input type="text" class="input-resposta" id="input-parte-2" placeholder="Resposta">
+            </span>
+        </div>
+
+        <div class="caixa-descricao" id="caixa-descricao-jures">
+            <p id="descricao-jures"></p>
+        </div>
+    
+        <button id="botao-verificar">Responder</button>
+        <div class="feedback-box" id="caixa-feedback"></div>
+
+        <div class="creditos">
+            <p>by 651 | Ethan Parker.</p>
+            <p><a href="https://discord.com/users/victorhugo5640">victorhugo#5640</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Array de casos judiciais
+            const casosJudiciais = [
+                { "titulo": "Miranda v. Arizona", "descricao": "Aviso verbal dos direitos." },
+                { "titulo": "Vega v. Tekoh", "descricao": "Protege o policial que não fez o aviso de Miranda." },
+                { "titulo": "Florida v. J.L.", "descricao": "É ilegal abordar alguém por uma denúncia anônima de localização e aparência sem informações de condutas ilegais." },
+                { "titulo": "Mapp v. Ohio", "descricao": "Exclui provas obtidas que não sejam por procedimento policial (quarta emenda privacidade)." },
+                { "titulo": "Terry v. Ohio", "descricao": "Revista superficial por suspeita razoável." },
+                { "titulo": "Maryland v. Wilson", "descricao": "Em uma ordem de parada, o policial pode pedir aos passageiros que saiam do veículo e fazer a revista em busca de armas." },
+                { "titulo": "Whren v. United States", "descricao": "Qualquer infração de trânsito é uma base legal para uma parada de trânsito." },
+                { "titulo": "Pennyslvania v. Mimms", "descricao": "O policial pode ordenar que o réu saia do carro após uma parada de trânsito e realizar uma revista superficial que não violará a Quarta Emenda." },
+                { "titulo": "Carroll v. United States", "descricao": "Mesmo sem mandado, os policiais podem fazer uma busca em um carro, se tiverem uma causa provável." },
+                { "titulo": "Horton v. San Andreas", "descricao": "A polícia pode pegar evidências que estão claramente À VISTA durante uma BUSCA LEGAL." },
+                { "titulo": "Chimel v. San Andreas", "descricao": "O policial pode revistar a área próxima à pessoa presa sem um mandado, mas precisa de um mandado para buscar em outras partes da casa." },
+                { "titulo": "Minnesota v. Dickerson", "descricao": "Se um policial sente algo claramente ilegal durante uma revista rápida, ele pode confiscá-lo." },
+                { "titulo": "Illinois v. Wardlow", "descricao": "A polícia pode justificar uma parada por comportamento nervoso e evasivo." },
+                { "titulo": "Tennessee v. Garner", "descricao": "O policial pode utilizar força letal para impedir a fuga de um suspeito desarmado se tiver motivos prováveis que o suspeito represente ameaça de morte ou ferimento." },
+                { "titulo": "Scott v. Harris", "descricao": "O oficial pode encerrar uma perseguição de carro utilizando a força, se o réu representar risco a outras pessoas." },
+                { "titulo": "Brendlin v. San Andreas", "descricao": "Durante uma parada de trânsito, tanto o motorista quanto os passageiros são considerados 'apreendidos' e têm direitos sob a Quarta Emenda." },
+                { "titulo": "Maryland v. King", "descricao": "A polícia pode coletar DNA de uma pessoa presa por um CRIME GRAVE." },
+                { "titulo": "Warren v. District of Columbia", "descricao": "A polícia tem a responsabilidade de proteger a comunidade como um todo, mas não tem um dever legal específico de proteger indivíduos, a menos que haja uma relação especial entre eles." },
+                { "titulo": "Missouri v. Seibert", "descricao": "Uma confissão obtida através de uma tática de interrogatório de 'perguntar primeiro, avisar depois' é inadmissível, a menos que os avisos de Miranda sejam dados e o suspeito tenha uma oportunidade genuína de invocar seus direitos."},
+                // Jures do DOJ
+                { "titulo": "Edwards v. Arizona", "descricao": "Uma vez que um suspeito invoca seu direito a um advogado, todo o interrogatório deve cessar até que um advogado esteja presente, a menos que o suspeito inicie uma comunicação posterior."},
+                { "titulo": "Berghuis v. Thompkins", "descricao": "Um suspeito que permanece em silêncio durante o interrogatório policial não invoca seu direito de permanecer em silêncio, a menos que o faça explicitamente." }
+            ];
+
+            let casoAtual;
+
+            // Elementos do DOM
+            const spanAntesV = document.getElementById('antesV');
+            const spanDepoisV = document.getElementById('depoisV');
+            const descricaoJuresprudencia = document.getElementById('descricao-jures');
+            const botaoVerificar = document.getElementById('botao-verificar');
+            const caixaFeedback = document.getElementById('caixa-feedback');
+            const inputParte1 = document.getElementById('input-parte-1');
+            const inputParte2 = document.getElementById('input-parte-2');
+            
+            const textoParte1 = spanAntesV.querySelector('.texto-parte');
+            const textoParte2 = spanDepoisV.querySelector('.texto-parte');
+            const inputParte1Element = spanAntesV.querySelector('.input-resposta');
+            const inputParte2Element = spanDepoisV.querySelector('.input-resposta');
+
+            function novaPergunta() {
+                inputParte1.value = '';
+                inputParte2.value = '';
+                caixaFeedback.textContent = '';
+                caixaFeedback.className = 'feedback-box';
+                botaoVerificar.disabled = false;
+                
+                textoParte1.style.display = 'inline';
+                textoParte2.style.display = 'inline';
+                inputParte1Element.style.display = 'none';
+                inputParte2Element.style.display = 'none';
+
+                casoAtual = casosJudiciais[Math.floor(Math.random() * casosJudiciais.length)];
+                const partes = casoAtual.titulo.split(' v. ');
+
+                const tipoPergunta = Math.random();
+
+                if (tipoPergunta < 0.33) {
+                    textoParte1.style.display = 'none';
+                    inputParte1Element.style.display = 'inline-block';
+                    textoParte2.textContent = partes[1];
+                } else if (tipoPergunta < 0.66) {
+                    textoParte2.style.display = 'none';
+                    inputParte2Element.style.display = 'inline-block';
+                    textoParte1.textContent = partes[0];
+                } else {
+                    textoParte1.style.display = 'none';
+                    textoParte2.style.display = 'none';
+                    inputParte1Element.style.display = 'inline-block';
+                    inputParte2Element.style.display = 'inline-block';
+                }
+
+                descricaoJuresprudencia.textContent = casoAtual.descricao;
+            }
+
+            function verificarResposta() {
+                const respostaUsuario1 = inputParte1.value.trim().toLowerCase();
+                const respostaUsuario2 = inputParte2.value.trim().toLowerCase();
+
+                const [parte1Correta, parte2Correta] = casoAtual.titulo.split(' v. ').map(p => p.trim().toLowerCase());
+
+                let respostaEstaCorreta = false;
+
+                if (inputParte1Element.style.display === 'inline-block' && inputParte2Element.style.display === 'inline-block') {
+                    respostaEstaCorreta = (respostaUsuario1 === parte1Correta && respostaUsuario2 === parte2Correta) || (respostaUsuario1 === parte2Correta && respostaUsuario2 === parte1Correta);
+                } else if (inputParte1Element.style.display === 'inline-block') {
+                    respostaEstaCorreta = respostaUsuario1 === parte1Correta;
+                } else if (inputParte2Element.style.display === 'inline-block') {
+                    respostaEstaCorreta = respostaUsuario2 === parte2Correta;
+                }
+
+                if (respostaEstaCorreta) {
+                    caixaFeedback.textContent = "Correto!";
+                    caixaFeedback.classList.remove('feedback-errado');
+                    caixaFeedback.classList.add('feedback-correto');
+                    botaoVerificar.disabled = true;
+                    
+                    setTimeout(novaPergunta, 1000);
+                } else {
+                    caixaFeedback.textContent = "Errado! Tente novamente.";
+                    caixaFeedback.classList.add('feedback-errado');
+                }
+            }
+
+            botaoVerificar.addEventListener('click', verificarResposta);
+
+            novaPergunta();
+        });
+    </script>
+</body>
+</html>
