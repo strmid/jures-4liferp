@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treinamento de Jurisprudência</title>
+    <title>Quiz de Jurisprudência</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,17 +13,6 @@
             height: 100vh;
             margin: 0;
             background-color: #f0f2f5;
-        }
-
-        .container-principal {
-            background: #fff;
-            padding: 2.5em;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 600px;
-            width: 100%;
-            transition: transform 0.3s ease;
         }
 
         h1 {
@@ -67,7 +56,6 @@
             padding: 12px 24px;
             font-size: 1em;
             color: #fff;
-            background-color: #007bff;
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -75,8 +63,19 @@
             margin-top: 1.5em;
         }
 
+        #botao-verificar {
+            background-color: #007bff;
+        }
+
+        #botao-verificar:hover {
+            background-color: #007bff;
+        }
+
+        #botao-skipar {
+            background-color: #ff0000;
+        }
+
         button:hover {
-            background-color: #0056b3;
             transform: translateY(-2px);
         }
 
@@ -85,7 +84,7 @@
         }
         
         button:disabled {
-            background-color: #ccc;
+            background-color: #cccccc;
             cursor: not-allowed;
         }
 
@@ -134,12 +133,38 @@
             text-decoration: none;
             font-weight: bold;
         }
+
+        .caixa-filtro {
+            position: absolute; 
+            top: 50%; 
+            left: 200px;
+            transform: translateY(-50%);
+            
+            padding-top: 10px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 200px;
+            max-height: 50px;
+            height: 100%;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
 
+    <div class="caixa-filtro">
+        <label for="filtro-doj-sop" style="font-weight: bold; color: #555;">Tipo de Juresprudência</label>
+        <select id="filtro-doj-sop">
+            <option value="sop">SOP</option>
+            <option value="doj">DOJ</option>
+            <option value="todos">Todos</option>
+        </select>
+    </div>
+
     <div class="container-principal">
-        <h1>Treinamento de Jurisprudência</h1>
+        <h1>Quiz de Jurisprudência</h1>
         
         <div class="caixa-exercicio">
             <span id="antesV">
@@ -158,7 +183,10 @@
         </div>
     
         <button id="botao-verificar">Responder</button>
+        <button id="botao-skipar">Não sei</button>
         <div class="feedback-box" id="caixa-feedback"></div>
+
+        <div class="feedback-info" id="feedback-info" style="display: none;">Juresprudência mencionadas no <a target="_blank" href="https://docs.google.com/document/d/1zC7K_Jojrwy4-q3xUpBTdQQVJpAXktrO_hAS2A0hNy4">DOJ</a></div>
 
         <div class="creditos">
             <p>by 651 | Ethan Parker.</p>
@@ -170,28 +198,38 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Array de casos judiciais
             const casosJudiciais = [
-                { "titulo": "Miranda v. Arizona", "descricao": "Aviso verbal dos direitos." },
+                { "titulo": "Miranda v. Arizona", "descricao": "Aviso verbal dos direitos.", "tipo": "sop"  },
                 { "titulo": "Vega v. Tekoh", "descricao": "Protege o policial que não fez o aviso de Miranda." },
-                { "titulo": "Florida v. J.L.", "descricao": "É ilegal abordar alguém por uma denúncia anônima de localização e aparência sem informações de condutas ilegais." },
-                { "titulo": "Mapp v. Ohio", "descricao": "Exclui provas obtidas que não sejam por procedimento policial (quarta emenda privacidade)." },
-                { "titulo": "Terry v. Ohio", "descricao": "Revista superficial por suspeita razoável." },
-                { "titulo": "Maryland v. Wilson", "descricao": "Em uma ordem de parada, o policial pode pedir aos passageiros que saiam do veículo e fazer a revista em busca de armas." },
-                { "titulo": "Whren v. United States", "descricao": "Qualquer infração de trânsito é uma base legal para uma parada de trânsito." },
-                { "titulo": "Pennyslvania v. Mimms", "descricao": "O policial pode ordenar que o réu saia do carro após uma parada de trânsito e realizar uma revista superficial que não violará a Quarta Emenda." },
-                { "titulo": "Carroll v. United States", "descricao": "Mesmo sem mandado, os policiais podem fazer uma busca em um carro, se tiverem uma causa provável." },
-                { "titulo": "Horton v. San Andreas", "descricao": "A polícia pode pegar evidências que estão claramente À VISTA durante uma BUSCA LEGAL." },
-                { "titulo": "Chimel v. San Andreas", "descricao": "O policial pode revistar a área próxima à pessoa presa sem um mandado, mas precisa de um mandado para buscar em outras partes da casa." },
-                { "titulo": "Minnesota v. Dickerson", "descricao": "Se um policial sente algo claramente ilegal durante uma revista rápida, ele pode confiscá-lo." },
-                { "titulo": "Illinois v. Wardlow", "descricao": "A polícia pode justificar uma parada por comportamento nervoso e evasivo." },
-                { "titulo": "Tennessee v. Garner", "descricao": "O policial pode utilizar força letal para impedir a fuga de um suspeito desarmado se tiver motivos prováveis que o suspeito represente ameaça de morte ou ferimento." },
-                { "titulo": "Scott v. Harris", "descricao": "O oficial pode encerrar uma perseguição de carro utilizando a força, se o réu representar risco a outras pessoas." },
-                { "titulo": "Brendlin v. San Andreas", "descricao": "Durante uma parada de trânsito, tanto o motorista quanto os passageiros são considerados 'apreendidos' e têm direitos sob a Quarta Emenda." },
-                { "titulo": "Maryland v. King", "descricao": "A polícia pode coletar DNA de uma pessoa presa por um CRIME GRAVE." },
-                { "titulo": "Warren v. District of Columbia", "descricao": "A polícia tem a responsabilidade de proteger a comunidade como um todo, mas não tem um dever legal específico de proteger indivíduos, a menos que haja uma relação especial entre eles." },
-                { "titulo": "Missouri v. Seibert", "descricao": "Uma confissão obtida através de uma tática de interrogatório de 'perguntar primeiro, avisar depois' é inadmissível, a menos que os avisos de Miranda sejam dados e o suspeito tenha uma oportunidade genuína de invocar seus direitos."},
-                // Jures do DOJ
-                { "titulo": "Edwards v. Arizona", "descricao": "Uma vez que um suspeito invoca seu direito a um advogado, todo o interrogatório deve cessar até que um advogado esteja presente, a menos que o suspeito inicie uma comunicação posterior."},
-                { "titulo": "Berghuis v. Thompkins", "descricao": "Um suspeito que permanece em silêncio durante o interrogatório policial não invoca seu direito de permanecer em silêncio, a menos que o faça explicitamente." }
+                { "titulo": "Florida v. J.L.", "descricao": "É ilegal abordar alguém por uma denúncia anônima de localização e aparência sem informações de condutas ilegais.", "tipo": "sop" },
+                { "titulo": "Mapp v. Ohio", "descricao": "Exclui provas obtidas que não sejam por procedimento policial (quarta emenda privacidade).", "tipo": "sop" },
+                { "titulo": "Terry v. Ohio", "descricao": "Revista superficial por suspeita razoável.", "tipo": "sop" },
+                { "titulo": "Maryland v. Wilson", "descricao": "Em uma ordem de parada, o policial pode pedir aos passageiros que saiam do veículo e fazer a revista em busca de armas.", "tipo": "sop" },
+                { "titulo": "Whren v. United States", "descricao": "Qualquer infração de trânsito é uma base legal para uma parada de trânsito.", "tipo": "sop" },
+                { "titulo": "Pennyslvania v. Mimms", "descricao": "O policial pode ordenar que o réu saia do carro após uma parada de trânsito e realizar uma revista superficial que não violará a Quarta Emenda.", "tipo": "sop" },
+                { "titulo": "Carroll v. United States", "descricao": "Mesmo sem mandado, os policiais podem fazer uma busca em um carro, se tiverem uma causa provável.", "tipo": "sop" },
+                { "titulo": "Horton v. San Andreas", "descricao": "A polícia pode pegar evidências que estão claramente À VISTA durante uma BUSCA LEGAL.", "tipo": "sop" },
+                { "titulo": "Chimel v. San Andreas", "descricao": "O policial pode revistar a área próxima à pessoa presa sem um mandado, mas precisa de um mandado para buscar em outras partes da casa.", "tipo": "sop" },
+                { "titulo": "Minnesota v. Dickerson", "descricao": "Se um policial sente algo claramente ilegal durante uma revista rápida, ele pode confiscá-lo.", "tipo": "sop" },
+                { "titulo": "Illinois v. Wardlow", "descricao": "A polícia pode justificar uma parada por comportamento nervoso e evasivo.", "tipo": "sop" },
+                { "titulo": "Tennessee v. Garner", "descricao": "O policial pode utilizar força letal para impedir a fuga de um suspeito desarmado se tiver motivos prováveis que o suspeito represente ameaça de morte ou ferimento.", "tipo": "sop" },
+                { "titulo": "Scott v. Harris", "descricao": "O oficial pode encerrar uma perseguição de carro utilizando a força, se o réu representar risco a outras pessoas.", "tipo": "sop" },
+                { "titulo": "Brendlin v. San Andreas", "descricao": "Durante uma parada de trânsito, tanto o motorista quanto os passageiros são considerados 'apreendidos' e têm direitos sob a Quarta Emenda.", "tipo": "sop" },
+                { "titulo": "Maryland v. King", "descricao": "A polícia pode coletar DNA de uma pessoa presa por um CRIME GRAVE.", "tipo": "sop" },
+                { "titulo": "Warren v. District of Columbia", "descricao": "A polícia tem a responsabilidade de proteger a comunidade como um todo, mas não tem um dever legal específico de proteger indivíduos, a menos que haja uma relação especial entre eles.", "tipo": "sop" },
+                
+                // Jures citados no DOJ
+                
+                { "titulo": "Miranda v. Arizona", "descricao": "Aviso verbal dos direitos.", "tipo": "doj" },
+                { "titulo": "Terry v. Ohio", "descricao": "Revista superficial por suspeita razoável.", "tipo": "doj" },
+                { "titulo": "Maryland v. Wilson", "descricao": "Em uma ordem de parada, o policial pode pedir aos passageiros que saiam do veículo e fazer a revista em busca de armas.", "tipo": "doj" },
+                { "titulo": "Tennessee v. Garner", "descricao": "O policial pode utilizar força letal para impedir a fuga de um suspeito desarmado se tiver motivos prováveis que o suspeito represente ameaça de morte ou ferimento.", "tipo": "doj" },
+                { "titulo": "Carroll v. United States", "descricao": "Mesmo sem mandado, os policiais podem fazer uma busca em um carro, se tiverem uma causa provável.", "tipo": "doj" },
+                { "titulo": "Pennyslvania v. Mimms", "descricao": "O policial pode ordenar que o réu saia do carro após uma parada de trânsito e realizar uma revista superficial que não violará a Quarta Emenda.", "tipo": "doj" },
+                { "titulo": "Illinois v. Garner", "descricao": "O teste da \"totalidade das circunstâncias\" é o padrão para determinar se a causa provável existe para a emissão de um mandado de busca, substituindo o teste de dois elementos de Aguilar-Spinelli", "tipo": "doj" },
+                { "titulo": "United States v. Leon", "descricao": "A doutrina da exclusão não se aplica quando os policiais agem de boa gé com base em um mandado de busca que mais tarde se releva inválido.", "tipo": "doj" },
+                { "titulo": "Missouri v. Seibert", "descricao": "Uma confissão obtida através de uma tática de interrogatório de 'perguntar primeiro, avisar depois' é inadmissível, a menos que os avisos de Miranda sejam dados e o suspeito tenha uma oportunidade genuína de invocar seus direitos.", "tipo": "doj"},
+                { "titulo": "Edwards v. Arizona", "descricao": "Uma vez que um suspeito invoca seu direito a um advogado, todo o interrogatório deve cessar até que um advogado esteja presente, a menos que o suspeito inicie uma comunicação posterior.", "tipo": "doj"},
+                { "titulo": "Berghuis v. Thompkins", "descricao": "Um suspeito que permanece em silêncio durante o interrogatório policial não invoca seu direito de permanecer em silêncio, a menos que o faça explicitamente.", "tipo": "doj" }
             ];
 
             let casoAtual;
@@ -201,14 +239,32 @@
             const spanDepoisV = document.getElementById('depoisV');
             const descricaoJuresprudencia = document.getElementById('descricao-jures');
             const botaoVerificar = document.getElementById('botao-verificar');
+            const botaoSkipar = document.getElementById('botao-skipar');
+            const selectFiltro = document.getElementById('filtro-doj-sop');
             const caixaFeedback = document.getElementById('caixa-feedback');
             const inputParte1 = document.getElementById('input-parte-1');
             const inputParte2 = document.getElementById('input-parte-2');
-            
+            const feedbackInfo = document.getElementById('feedback-info');
+
             const textoParte1 = spanAntesV.querySelector('.texto-parte');
             const textoParte2 = spanDepoisV.querySelector('.texto-parte');
             const inputParte1Element = spanAntesV.querySelector('.input-resposta');
             const inputParte2Element = spanDepoisV.querySelector('.input-resposta');
+
+            let casoFiltrado = casosJudiciais.filter(caso => caso.tipo === selectFiltro.value);
+
+            function filtrarCasos() {
+                const tipoFiltragem = selectFiltro.value;
+                if (tipoFiltragem === 'todos') {
+                    casoFiltrado = casosJudiciais;
+                } else {
+                    casoFiltrado = casosJudiciais.filter(caso => caso.tipo === tipoFiltragem);
+                }
+
+                feedbackInfo.style.display = tipoFiltragem === 'sop' ? 'none' : '';
+
+                novaPergunta();
+            }
 
             function novaPergunta() {
                 inputParte1.value = '';
@@ -216,13 +272,23 @@
                 caixaFeedback.textContent = '';
                 caixaFeedback.className = 'feedback-box';
                 botaoVerificar.disabled = false;
+                botaoSkipar.disabled = false;
+                selectFiltro.disabled = false;
                 
                 textoParte1.style.display = 'inline';
                 textoParte2.style.display = 'inline';
                 inputParte1Element.style.display = 'none';
                 inputParte2Element.style.display = 'none';
 
-                casoAtual = casosJudiciais[Math.floor(Math.random() * casosJudiciais.length)];
+                let novoCaso;
+
+                do {
+                    novoCaso = casoFiltrado[Math.floor(Math.random() * casoFiltrado.length)];
+                } while(casoAtual !== undefined && novoCaso.titulo === casoAtual.titulo && casoFiltrado.length > 1);
+
+                casoAtual = novoCaso;
+                console.log("Resposta: " + casoAtual.titulo);
+
                 const partes = casoAtual.titulo.split(' v. ');
 
                 const tipoPergunta = Math.random();
@@ -266,6 +332,8 @@
                     caixaFeedback.classList.remove('feedback-errado');
                     caixaFeedback.classList.add('feedback-correto');
                     botaoVerificar.disabled = true;
+                    botaoSkipar.disabled = true;
+                    selectFiltro.disabled = true;
                     
                     setTimeout(novaPergunta, 1000);
                 } else {
@@ -274,7 +342,22 @@
                 }
             }
 
+            function skiparResposta() {
+                caixaFeedback.textContent = casoAtual.titulo;
+                caixaFeedback.classList.add('feedback-errado');
+                botaoVerificar.disabled = true;
+                botaoSkipar.disabled = true;
+                selectFiltro.disabled = true;
+
+                setTimeout(() => {
+                    caixaFeedback.classList.remove('feedback-errado');
+                    novaPergunta();
+                }, 1500);
+            }
+
             botaoVerificar.addEventListener('click', verificarResposta);
+            botaoSkipar.addEventListener('click', skiparResposta);
+            selectFiltro.addEventListener('change', filtrarCasos);
 
             novaPergunta();
         });
